@@ -6,12 +6,12 @@ const KEEP_ALIVE_GAP = process.env.KEEP_ALIVE_GAP || 5000;
 const KEEP_ALIVE_URL = process.env.BASE_URL || 5000;
 
 class LaunchPuppeteer {
-
+    
   constructor() {
     this.lastPingMessage = "Server has not been pinged yet.";
     this.keepAliveGap = KEEP_ALIVE_GAP;
     this.siteUrl = KEEP_ALIVE_URL;
-  }
+  }    
 
   startKeepAlive() {
     setInterval(async () => {
