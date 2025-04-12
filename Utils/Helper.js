@@ -33,8 +33,7 @@ class LaunchPuppeteer {
   async LaunchBrowser() {
     try {
       const browser = await puppeteer.launch({
-        executablePath:
-          "c://Program Files//Google//Chrome//Application//chrome.exe", // Update path if necessary
+        // executablePath: "c://Program Files//Google//Chrome//Application//chrome.exe",
         headless: "new",
       });
       const page = await browser.newPage();
