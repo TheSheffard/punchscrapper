@@ -47,10 +47,10 @@ async function fetchAndInsertPosts(path, categoryId, categoryName) {
       );
 
       // Check if the post's date is today's date
-      // if (formattedPostDate !== today) {
-      //   console.log("Post is not from today Skipping");
-      //   continue;
-      // }
+      if (formattedPostDate !== today) {
+        console.log("Post is not from today Skipping");
+        continue;
+      }
 
       if (post.content == null) {
         console.log("Post content is null");
