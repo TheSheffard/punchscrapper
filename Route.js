@@ -12,6 +12,15 @@ router.get("/all-post", (req, res) => {
   News.getAllPost(req, res);
 });
 
+router.get("/news/:Id", (req, res) => {
+
+  News.getNewsById(req, res);
+});
+
+router.get("/post/:categoryName", (req, res) => {
+  News.getNewsByCategoryName(req, res);
+});
+
 
 router.get("/pinged", (req, res) => {
   const lastPingMessage = LaunchPuppeteer.getLastPingMessage();
