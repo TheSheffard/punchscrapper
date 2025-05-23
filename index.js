@@ -8,15 +8,11 @@ import moment from "moment";
 import LaunchPuppeteer from "./Utils/Helper.js"
 
 const app = express();
+
+// Enable CORS
+app.use(cors());
+
 app.use("/", router);
-// Configure CORS properly
-app.use(
-  cors({
-    origin: "*", // Allows requests from any origin
-    methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
-    allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
-  })
-);
 
 const PORT = process.env.PORT || 4000;
 //category ids
@@ -116,7 +112,7 @@ const startServer = async () => {
 
     await Promise.all([
       // fetchAndInsertAllPosts(),
-      setInterval(fetchAndInsertAllPosts, 60 * 60 * 1000), // Fetch posts every hour
+      // setInterval(fetchAndInsertAllPosts, 60 * 60 * 1000), // Fetch posts every hour
     ]);
   } catch (e) {
     console.log(e.message + `Error connecting to Database`);
