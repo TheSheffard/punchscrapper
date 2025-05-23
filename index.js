@@ -42,7 +42,7 @@ async function fetchAndInsertPosts(path, categoryId, categoryName) {
     }
 
     for (const post of posts) {
-      const formattedPostDate = moment(post.date, "Do MMMM YYYY").format(
+      const formattedPostDate = moment(post.date, "DD MMMM YYYY").format(
         "YYYY-MM-DD"
       );
 
@@ -66,6 +66,8 @@ async function fetchAndInsertPosts(path, categoryId, categoryName) {
         );
         continue;
       }
+
+      console.log(post)
 
       await News.saveNews(post, categoryId, categoryName);
 
@@ -103,7 +105,7 @@ const startServer = async () => {
     await mongoose.connect(process.env.MONGO_URI).then(() => {
       console.log(`Connected To MongoDB!!!`);
     });
-    
+
     // Start the server
     app.listen(PORT, () => {
       console.log(`Listening on port ${PORT}`);
@@ -112,9 +114,8 @@ const startServer = async () => {
     // Start the keep-alive pinger
     LaunchPuppeteer.startKeepAlive();
 
-    // Run both functions simultaneously without blocking
     await Promise.all([
-      fetchAndInsertAllPosts(),
+      // fetchAndInsertAllPosts(),
       setInterval(fetchAndInsertAllPosts, 60 * 60 * 1000), // Fetch posts every hour
     ]);
   } catch (e) {

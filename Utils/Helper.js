@@ -6,12 +6,12 @@ const KEEP_ALIVE_GAP = process.env.KEEP_ALIVE_GAP || 5000;
 const KEEP_ALIVE_URL = process.env.BASE_URL || 5000;
 
 class LaunchPuppeteer {
-    
+
   constructor() {
     this.lastPingMessage = "Server has not been pinged yet.";
     this.keepAliveGap = KEEP_ALIVE_GAP;
     this.siteUrl = KEEP_ALIVE_URL;
-  }    
+  }
 
   startKeepAlive() {
     setInterval(async () => {
@@ -46,11 +46,11 @@ class LaunchPuppeteer {
 
   async interceptRequest(page) {
     await page.setRequestInterception(true);
-  
+
     page.on("request", (request) => {
       const url = request.url();
       const resourceType = request.resourceType();
-  
+
       // Block data urls.
       if (url.startsWith("data:")) {
         request.abort(); // Block the request
@@ -60,7 +60,7 @@ class LaunchPuppeteer {
         resourceType == "stylesheet" ||
         resourceType == "font" ||
         resourceType == "script" ||
-        resourceType == "image" 
+        resourceType == "image"
       ) {
         request.abort(); // Block the request
       } else {
@@ -97,21 +97,28 @@ class LaunchPuppeteer {
   }
 
   async scrapNewsMainContent(page) {
+
+
     return await page.evaluate(() => {
+
       const parent = document.querySelector(".single-article");
       if (!parent) return null;
-  
+
       const title = parent.querySelector(".post-title")?.innerText.trim() || "";
       const date = parent.querySelector(".post-date")?.innerText.trim() || "";
-      const image =
-        parent.querySelector(".post-image-wrapper img")?.getAttribute("src") || "";
-  
+      const image = parent.querySelector(".post-image-wrapper img")?.getAttribute("src") || "";
+
       const contentContainer = parent.querySelector(".post-content");
       let content = "";
-  
+
+      // const [day, monthName, year] = newsDate.split(" ");
+      // const monthNumber = MonthReplacer(monthName)
+
+      // const date = `${year}-${monthNumber}-${day.slice(0, 2)}`
+
       if (contentContainer) {
         const seen = new Set();
-  
+
         const paragraphs = Array.from(contentContainer.querySelectorAll("p"))
           .map((p) => p.innerText.trim())
           .filter((text) => {
@@ -119,10 +126,10 @@ class LaunchPuppeteer {
             seen.add(text);
             return true;
           });
-  
+
         content = paragraphs.join(" ");
       }
-  
+
       return {
         title,
         date,
@@ -131,8 +138,26 @@ class LaunchPuppeteer {
       };
     });
   }
-  
-  
+
+  MonthReplacer(monthName) {
+    switch (monthName) {
+      case "January": return "01";
+      case "February": return "02";
+      case "March": return "03";
+      case "April": return "04";
+      case "May": return "05";
+      case "June": return "06";
+      case "July": return "07";
+      case "August": return "08";
+      case "September": return "09";
+      case "October": return "10";
+      case "November": return "11";
+      case "December": return "12";
+      default: return ""; // Return empty string for invalid month
+    }
+  };
+
+
 
 }
 

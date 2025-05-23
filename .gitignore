@@ -8,6 +8,7 @@
 .env
 # testing
 /coverage
+/Test.json
 
 # next.js
 /.next/
