@@ -112,7 +112,7 @@ const startServer = async () => {
 
     await Promise.all([
       // fetchAndInsertAllPosts(),
-      // setInterval(fetchAndInsertAllPosts, 60 * 60 * 1000), // Fetch posts every hour
+      setInterval(fetchAndInsertAllPosts, 60 * 60 * 1000), // Fetch posts every hour
     ]);
   } catch (e) {
     console.log(e.message + `Error connecting to Database`);
