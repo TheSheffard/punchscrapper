@@ -102,7 +102,7 @@ class News {
           { title: { $regex: regex } }, // Search in the title field
           { content: { $regex: regex } }, // Search in the content field
         ]
-      }).sort({ createdAt: -1 }); // Sort by newest first
+      }).sort({ createdAt: -1 }).limit(5);; 
 
       if (newsItems.length === 0) {
         return res.status(404).json({
