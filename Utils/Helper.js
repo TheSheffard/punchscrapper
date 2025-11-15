@@ -39,7 +39,7 @@ class LaunchPuppeteer {
       const page = await browser.newPage();
 
       return { page, browser };
-    } catch (e) {
+    } catch (e) { 
       console.log("Error occurred while trying to launch browser", e.message);
     }
   }

@@ -21,6 +21,8 @@ router.get("/post/:categoryName", (req, res) => {
   News.getNewsByCategoryName(req, res);
 });
 
+router.get('/search', News.searchNews);
+
 
 router.get("/pinged", (req, res) => {
   const lastPingMessage = LaunchPuppeteer.getLastPingMessage();
