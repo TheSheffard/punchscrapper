@@ -22,6 +22,7 @@ export const pageScrapper = async (pageUrl) => {
     for (const post of posts) {
 
       if (!post?.link) continue;
+      
       const postPage = await browser.newPage();
       await LaunchPuppeteer.interceptRequest(postPage);
 
@@ -33,9 +34,10 @@ export const pageScrapper = async (pageUrl) => {
         );
 
         if (mainContent?.title && mainContent?.content) {
+          console.log("✅ Scraped post:", mainContent.title);
           postData.push(mainContent);
         } else {
-          console.log("⚠️ Skipped due to empty content:", post.link);
+          console.log("⚠️ Skipped due to empty content:", post.link, "and the main content is", mainContent);
         }
       } catch (err) {
         console.error("❌ Failed to load post:", post.link, err.message);

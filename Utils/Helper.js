@@ -1,12 +1,12 @@
 import puppeteer from "puppeteer";
 import dotenv from "dotenv";
 dotenv.config();
+
 const SITE_URL = process.env.SITE_URL;
 const KEEP_ALIVE_GAP = process.env.KEEP_ALIVE_GAP || 5000;
 const KEEP_ALIVE_URL = process.env.BASE_URL || 5000;
 
 class LaunchPuppeteer {
-
   constructor() {
     this.lastPingMessage = "Server has not been pinged yet.";
     this.keepAliveGap = KEEP_ALIVE_GAP;
@@ -35,11 +35,17 @@ class LaunchPuppeteer {
       const browser = await puppeteer.launch({
         // executablePath: "c://Program Files//Google//Chrome//Application//chrome.exe",
         headless: "new",
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--disable-gpu'
+        ]
       });
       const page = await browser.newPage();
-
       return { page, browser };
-    } catch (e) { 
+    } catch (e) {
       console.log("Error occurred while trying to launch browser", e.message);
     }
   }
@@ -51,56 +57,48 @@ class LaunchPuppeteer {
       const url = request.url();
       const resourceType = request.resourceType();
 
-      // Block data urls.
-      if (url.startsWith("data:")) {
-        request.abort(); // Block the request
-      }
-      // Block stylesheets, fonts, images, scripts, documents and others.
-      else if (
-        resourceType == "stylesheet" ||
-        resourceType == "font" ||
-        resourceType == "script" ||
-        resourceType == "image"
-      ) {
-        request.abort(); // Block the request
+      if (url.startsWith("data:") ||
+          resourceType === "stylesheet" ||
+          resourceType === "font" ||
+          resourceType === "script" ||
+          resourceType === "image") {
+        request.abort();
       } else {
-        request.continue(); // Allow other resources.
+        request.continue();
       }
     });
   }
 
-
-  // This function will scrape all post in the All-Post page
+  // FIXED: Remove duplicates and improve link extraction
   async scraperAllPostFunction(page) {
     return await page.evaluate((SITE_URL) => {
       const container = document.querySelector("#category-page");
       if (!container) return [];
 
       const anchors = container.querySelectorAll("a");
+      const linkSet = new Set(); // Use Set to prevent duplicates
       const links = [];
 
       anchors.forEach((a) => {
         const href = a.getAttribute("href");
         if (href) {
           const fullLink = href.startsWith("http") ? href : SITE_URL + href;
-
-          links.push({
-            link: fullLink,
-          });
-        } else {
-          console.log("No heft tag found here");
+          
+          // Only add if not already in the set
+          if (!linkSet.has(fullLink)) {
+            linkSet.add(fullLink);
+            links.push({ link: fullLink });
+          }
         }
       });
 
+      console.log(`Found ${links.length} unique post links.`);
       return links;
     }, SITE_URL);
   }
 
   async scrapNewsMainContent(page) {
-
-
     return await page.evaluate(() => {
-
       const parent = document.querySelector(".single-article");
       if (!parent) return null;
 
@@ -111,14 +109,8 @@ class LaunchPuppeteer {
       const contentContainer = parent.querySelector(".post-content");
       let content = "";
 
-      // const [day, monthName, year] = newsDate.split(" ");
-      // const monthNumber = MonthReplacer(monthName)
-
-      // const date = `${year}-${monthNumber}-${day.slice(0, 2)}`
-
       if (contentContainer) {
         const seen = new Set();
-
         const paragraphs = Array.from(contentContainer.querySelectorAll("p"))
           .map((p) => p.innerText.trim())
           .filter((text) => {
@@ -130,37 +122,19 @@ class LaunchPuppeteer {
         content = paragraphs.join(" ");
       }
 
-      return {
-        title,
-        date,
-        image,
-        content,
-      };
+      return { title, date, image, content };
     });
   }
 
   MonthReplacer(monthName) {
-    switch (monthName) {
-      case "January": return "01";
-      case "February": return "02";
-      case "March": return "03";
-      case "April": return "04";
-      case "May": return "05";
-      case "June": return "06";
-      case "July": return "07";
-      case "August": return "08";
-      case "September": return "09";
-      case "October": return "10";
-      case "November": return "11";
-      case "December": return "12";
-      default: return ""; // Return empty string for invalid month
-    }
-  };
-
-
-
+    const months = {
+      "January": "01", "February": "02", "March": "03",
+      "April": "04", "May": "05", "June": "06",
+      "July": "07", "August": "08", "September": "09",
+      "October": "10", "November": "11", "December": "12"
+    };
+    return months[monthName] || "";
+  }
 }
 
 export default new LaunchPuppeteer();
-
-

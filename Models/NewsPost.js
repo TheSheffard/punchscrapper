@@ -72,7 +72,7 @@ class News {
   async getNewsByCategoryName(req, res) {
     const { categoryName } = req.params;
     try {
-      const newsItem = await this.model.find({ categoryName }).sort({ createdAt: -1 });
+      const newsItem = await this.model.find({ categoryName }).sort({ createdAt: -1 }).limit(40);
 
       if (newsItem.length == 0) return res.status(404).json({ status: "failed", message: `No news found for this category ${categoryName}` });
 
