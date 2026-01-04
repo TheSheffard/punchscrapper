@@ -51,15 +51,24 @@ async function fetchAndInsertPosts(path, categoryId, categoryName) {
         }
 
         // Format and validate date - handle multiple formats
-        // Try parsing "December 10, 2025 9:51 pm" format first
         let formattedPostDate = moment(post.date, "MMMM DD, YYYY h:mm a", true);
         
-        // If that fails, try "DD MMMM YYYY" format
+        // If that fails, try without time
+        if (!formattedPostDate.isValid()) {
+          formattedPostDate = moment(post.date, "MMMM DD, YYYY", true);
+        }
+        
+        // Try DD MMMM YYYY format
         if (!formattedPostDate.isValid()) {
           formattedPostDate = moment(post.date, "DD MMMM YYYY", true);
         }
         
-        // If still invalid, skip
+        // Try with different time formats (single-digit day)
+        if (!formattedPostDate.isValid()) {
+          formattedPostDate = moment(post.date, "MMMM D, YYYY h:mm a", true);
+        }
+        
+        // If still invalid, log the actual date string for debugging
         if (!formattedPostDate.isValid()) {
           console.log(`⚠️ Skipped: Invalid date format "${post.date}" for "${post.title?.substring(0, 50)}..."`);
           skippedCount++;
