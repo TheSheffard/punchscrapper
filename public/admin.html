@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CMS Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <span class="logo-icon">📰</span>
+          <span class="logo-text">CMS Admin</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-view="dashboard" onclick="switchView('dashboard', this)">
+          <span class="nav-icon">📊</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" data-view="create" onclick="switchView('create', this)">
+          <span class="nav-icon">✏️</span>
+          <span>Create Post</span>
+        </a>
+        <a href="#" class="nav-item" data-view="posts" onclick="switchView('posts', this)">
+          <span class="nav-icon">📄</span>
+          <span>All Posts</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- ========== DASHBOARD VIEW ========== -->
+      <section id="view-dashboard" class="view active-view">
+        <header class="top-bar">
+          <h1 class="page-title">Dashboard</h1>
+        </header>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📰</div>
+            <div class="stat-info">
+              <span class="stat-value" id="statTotal">—</span>
+              <span class="stat-label">Total Posts</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-info">
+              <span class="stat-value" id="statToday">—</span>
+              <span class="stat-label">Today's Posts</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📂</div>
+            <div class="stat-info">
+              <span class="stat-value">7</span>
+              <span class="stat-label">Categories</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🤖</div>
+            <div class="stat-info">
+              <span class="stat-value" id="statPing">—</span>
+              <span class="stat-label">Scraper Status</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-section">
+          <h2 class="section-title">Recent Posts</h2>
+          <div id="recentPostsList" class="posts-list">
+            <div class="loading-spinner"><span class="spinner"></span> Loading...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== CREATE POST VIEW ========== -->
+      <section id="view-create" class="view">
+        <header class="top-bar">
+          <h1 class="page-title">Create New Post</h1>
+          <div class="top-bar-actions">
+            <span class="status-badge" id="statusBadge">Ready</span>
+          </div>
+        </header>
+
+        <form id="createPostForm" class="post-form">
+          <div class="form-group">
+            <label for="postTitle" class="form-label">Post Title</label>
+            <input type="text" id="postTitle" name="title" class="form-input" placeholder="Enter a compelling headline..." required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="postCategory" class="form-label">Category</label>
+              <select id="postCategory" name="categoryName" class="form-input form-select" required>
+                <option value="" disabled selected>Select category</option>
+                <option value="News">News</option>
+                <option value="Featured">Featured</option>
+                <option value="Politics">Politics</option>
+                <option value="Sports">Sports</option>
+                <option value="Business">Business</option>
+                <option value="Lite">Lite</option>
+                <option value="HomePage">HomePage</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="postDate" class="form-label">Publish Date</label>
+              <input type="date" id="postDate" name="date" class="form-input" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="postImage" class="form-label">Image URL</label>
+            <input type="url" id="postImage" name="image" class="form-input" placeholder="https://example.com/image.jpg">
+            <div class="image-preview" id="imagePreview">
+              <span class="preview-placeholder">Image preview will appear here</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="postContent" class="form-label">Post Content</label>
+            <textarea id="postContent" name="content" class="form-input form-textarea" placeholder="Write your article content here..." rows="12" required></textarea>
+            <span class="char-count" id="charCount">0 characters</span>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" id="clearBtn">Clear Form</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              <span class="btn-text">Publish Post</span>
+              <span class="btn-loader" id="btnLoader"></span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ========== ALL POSTS VIEW ========== -->
+      <section id="view-posts" class="view">
+        <header class="top-bar">
+          <h1 class="page-title">All Posts</h1>
+          <div class="top-bar-actions">
+            <input type="text" id="postSearchInput" class="form-input search-input" placeholder="🔍 Search posts...">
+            <select id="categoryFilter" class="form-input form-select filter-select">
+              <option value="">All Categories</option>
+              <option value="News">News</option>
+              <option value="Featured">Featured</option>
+              <option value="Politics">Politics</option>
+              <option value="Sports">Sports</option>
+              <option value="Business">Business</option>
+              <option value="Lite">Lite</option>
+              <option value="HomePage">HomePage</option>
+            </select>
+            <button class="btn btn-primary btn-sm" onclick="loadAllPosts()">↻ Refresh</button>
+          </div>
+        </header>
+
+        <div class="posts-table-wrapper">
+          <table class="posts-table" id="postsTable">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="postsTableBody">
+              <tr><td colspan="5" class="table-empty"><span class="spinner"></span> Loading posts...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="posts-footer">
+          <span class="post-count" id="postCount">0 posts</span>
+        </div>
+      </section>
+
+      <!-- Toast notification -->
+      <div class="toast" id="toast">
+        <span class="toast-icon" id="toastIcon">✅</span>
+        <span class="toast-message" id="toastMessage">Post created successfully!</span>
+      </div>
+
+      <!-- Post Detail Modal -->
+      <div class="modal-overlay" id="postModal">
+        <div class="modal">
+          <div class="modal-header">
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+          </div>
+          <div class="modal-meta">
+            <span class="modal-badge" id="modalCategory"></span>
+            <span class="modal-date" id="modalDate"></span>
+          </div>
+          <div class="modal-image-wrapper" id="modalImageWrapper" style="display:none;">
+            <img id="modalImage" alt="Post image">
+          </div>
+          <div class="modal-body" id="modalContent"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ============ VIEW SWITCHING ============
+    function switchView(viewName, navEl) {
+      // Hide all views
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
+      // Show target
+      document.getElementById(`view-${viewName}`).classList.add('active-view');
+      // Update nav
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      if (navEl) navEl.classList.add('active');
+
+      // Load data when switching
+      if (viewName === 'posts') loadAllPosts();
+      if (viewName === 'dashboard') loadDashboard();
+    }
+
+    // ============ DASHBOARD ============
+    async function loadDashboard() {
+      try {
+        const res = await fetch('/all-post');
+        if (!res.ok) {
+          document.getElementById('statTotal').textContent = '0';
+          document.getElementById('statToday').textContent = '0';
+          document.getElementById('recentPostsList').innerHTML = '<p class="empty-text">No posts yet. Create your first post!</p>';
+          return;
+        }
+        const data = await res.json();
+        const posts = data.allPosts || [];
+
+        document.getElementById('statTotal').textContent = posts.length;
+
+        const today = new Date().toISOString().split('T')[0];
+        const todayPosts = posts.filter(p => p.date === today || p.createdAt?.startsWith(today));
+        document.getElementById('statToday').textContent = todayPosts.length;
+
+        // Recent posts (last 5)
+        const recent = posts.slice(0, 5);
+        const listHtml = recent.map(p => `
+          <div class="post-row-card" onclick='openModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
+            <div class="post-row-img" style="background-image:url('${p.image || ''}')">
+              ${p.image ? '' : '<span>📰</span>'}
+            </div>
+            <div class="post-row-info">
+              <span class="post-row-title">${escapeHtml(p.title)}</span>
+              <span class="post-row-meta">${p.categoryName || 'Uncategorized'} · ${p.date || ''}</span>
+            </div>
+          </div>
+        `).join('');
+
+        document.getElementById('recentPostsList').innerHTML = listHtml || '<p class="empty-text">No posts yet.</p>';
+      } catch (err) {
+        document.getElementById('recentPostsList').innerHTML = '<p class="empty-text">Could not load posts.</p>';
+      }
+
+      // Ping status
+      try {
+        const pingRes = await fetch('/pinged');
+        const pingData = await pingRes.json();
+        document.getElementById('statPing').textContent = pingData.lastPingMessage?.includes('✅') ? 'Active' : 'Idle';
+      } catch { document.getElementById('statPing').textContent = 'Offline'; }
+    }
+
+    // ============ ALL POSTS ============
+    let allPostsCache = [];
+
+    async function loadAllPosts() {
+      const tbody = document.getElementById('postsTableBody');
+      tbody.innerHTML = '<tr><td colspan="5" class="table-empty"><span class="spinner"></span> Loading posts...</td></tr>';
+
+      try {
+        const res = await fetch('/all-post');
+        if (!res.ok) {
+          tbody.innerHTML = '<tr><td colspan="5" class="table-empty">No posts found.</td></tr>';
+          document.getElementById('postCount').textContent = '0 posts';
+          allPostsCache = [];
+          return;
+        }
+        const data = await res.json();
+        allPostsCache = data.allPosts || [];
+        renderPostsTable(allPostsCache);
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="5" class="table-empty">Error loading posts.</td></tr>';
+      }
+    }
+
+    function renderPostsTable(posts) {
+      const tbody = document.getElementById('postsTableBody');
+      document.getElementById('postCount').textContent = `${posts.length} post${posts.length !== 1 ? 's' : ''}`;
+
+      if (posts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="table-empty">No posts match your filter.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = posts.map(p => `
+        <tr>
+          <td>
+            <div class="table-img" style="background-image:url('${p.image || ''}')">
+              ${p.image ? '' : '<span>📰</span>'}
+            </div>
+          </td>
+          <td>
+            <span class="table-title">${escapeHtml(p.title?.length > 70 ? p.title.substring(0, 70) + '...' : p.title || '')}</span>
+          </td>
+          <td><span class="category-badge">${p.categoryName || '—'}</span></td>
+          <td><span class="table-date">${p.date || '—'}</span></td>
+          <td>
+            <button class="btn btn-ghost" onclick='openModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>View</button>
+            <button class="btn btn-ghost btn-danger" onclick="deletePost('${p._id}')">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Search & filter
+    document.getElementById('postSearchInput').addEventListener('input', filterPosts);
+    document.getElementById('categoryFilter').addEventListener('change', filterPosts);
+
+    function filterPosts() {
+      const query = document.getElementById('postSearchInput').value.toLowerCase();
+      const cat = document.getElementById('categoryFilter').value;
+      let filtered = allPostsCache;
+
+      if (query) filtered = filtered.filter(p => p.title?.toLowerCase().includes(query) || p.content?.toLowerCase().includes(query));
+      if (cat) filtered = filtered.filter(p => p.categoryName === cat);
+
+      renderPostsTable(filtered);
+    }
+
+    // ============ DELETE POST ============
+    async function deletePost(id) {
+      if (!confirm('Are you sure you want to delete this post?')) return;
+      try {
+        const res = await fetch(`/admin/delete-post/${id}`, { method: 'DELETE' });
+        const result = await res.json();
+        if (res.ok) {
+          showToast('✅', 'Post deleted!', 'success');
+          loadAllPosts();
+        } else {
+          showToast('❌', result.message || 'Failed to delete post', 'error');
+        }
+      } catch { showToast('❌', 'Network error', 'error'); }
+    }
+
+    // ============ MODAL ============
+    function openModal(post) {
+      document.getElementById('modalTitle').textContent = post.title;
+      document.getElementById('modalCategory').textContent = post.categoryName || 'Uncategorized';
+      document.getElementById('modalDate').textContent = post.date || '';
+      document.getElementById('modalContent').textContent = post.content || 'No content.';
+
+      const imgWrapper = document.getElementById('modalImageWrapper');
+      if (post.image) {
+        document.getElementById('modalImage').src = post.image;
+        imgWrapper.style.display = 'block';
+      } else {
+        imgWrapper.style.display = 'none';
+      }
+
+      document.getElementById('postModal').classList.add('modal-visible');
+    }
+
+    function closeModal() {
+      document.getElementById('postModal').classList.remove('modal-visible');
+    }
+
+    document.getElementById('postModal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+
+    // ============ CREATE POST FORM ============
+    const form = document.getElementById('createPostForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnLoader = document.getElementById('btnLoader');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const statusBadge = document.getElementById('statusBadge');
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+    const toastIcon = document.getElementById('toastIcon');
+    const imageInput = document.getElementById('postImage');
+    const imagePreview = document.getElementById('imagePreview');
+    const contentInput = document.getElementById('postContent');
+    const charCount = document.getElementById('charCount');
+    const clearBtn = document.getElementById('clearBtn');
+
+    document.getElementById('postDate').valueAsDate = new Date();
+
+    contentInput.addEventListener('input', () => {
+      charCount.textContent = `${contentInput.value.length} characters`;
+    });
+
+    imageInput.addEventListener('input', () => {
+      const url = imageInput.value.trim();
+      if (url) {
+        imagePreview.innerHTML = `<img src="${url}" alt="Preview" onerror="this.parentElement.innerHTML='<span class=\\'preview-placeholder\\'>⚠️ Could not load image</span>'">`;
+      } else {
+        imagePreview.innerHTML = '<span class="preview-placeholder">Image preview will appear here</span>';
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      form.reset();
+      imagePreview.innerHTML = '<span class="preview-placeholder">Image preview will appear here</span>';
+      charCount.textContent = '0 characters';
+      document.getElementById('postDate').valueAsDate = new Date();
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      btnText.textContent = 'Publishing...';
+      btnLoader.style.display = 'inline-block';
+      statusBadge.textContent = 'Submitting...';
+      statusBadge.className = 'status-badge status-loading';
+
+      const postData = {
+        title: document.getElementById('postTitle').value.trim(),
+        categoryName: document.getElementById('postCategory').value,
+        date: document.getElementById('postDate').value,
+        image: document.getElementById('postImage').value.trim(),
+        content: document.getElementById('postContent').value.trim(),
+      };
+
+      try {
+        const response = await fetch('/admin/create-post', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(postData),
+        });
+        const result = await response.json();
+
+        if (response.ok) {
+          showToast('✅', 'Post published successfully!', 'success');
+          statusBadge.textContent = 'Published!';
+          statusBadge.className = 'status-badge status-success';
+          form.reset();
+          imagePreview.innerHTML = '<span class="preview-placeholder">Image preview will appear here</span>';
+          charCount.textContent = '0 characters';
+          document.getElementById('postDate').valueAsDate = new Date();
+        } else {
+          showToast('❌', result.message || 'Failed to create post', 'error');
+          statusBadge.textContent = 'Error';
+          statusBadge.className = 'status-badge status-error';
+        }
+      } catch (err) {
+        showToast('❌', 'Network error. Is the server running?', 'error');
+        statusBadge.textContent = 'Error';
+        statusBadge.className = 'status-badge status-error';
+      } finally {
+        submitBtn.disabled = false;
+        btnText.textContent = 'Publish Post';
+        btnLoader.style.display = 'none';
+        setTimeout(() => {
+          statusBadge.textContent = 'Ready';
+          statusBadge.className = 'status-badge';
+        }, 3000);
+      }
+    });
+
+    function showToast(icon, message, type) {
+      toastIcon.textContent = icon;
+      toastMessage.textContent = message;
+      toast.className = `toast toast-show toast-${type}`;
+      setTimeout(() => { toast.className = 'toast'; }, 4000);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text || '';
+      return div.innerHTML;
+    }
+
+    // Load dashboard on start
+    loadDashboard();
+  </script>
+</body>
+</html>

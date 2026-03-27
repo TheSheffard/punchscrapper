@@ -34,6 +34,16 @@ router.get("/cate", (req, res) => {
   res.json({ lastPingMessage });
 });
 
+// Admin: Create a new post
+router.post("/admin/create-post", (req, res) => {
+  News.createPost(req, res);
+});
+
+// Admin: Delete a post
+router.delete("/admin/delete-post/:id", (req, res) => {
+  News.deletePost(req, res);
+});
 
 
-export default router;
+
+export default router;
